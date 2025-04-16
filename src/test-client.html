@@ -11,7 +11,7 @@
     <div id="messages"></div>
 
     <script>
-        const socket = io('http://localhost:3000', {
+        const socket = io('https://detection-fall-backend.vercel.app', {
             transports: ['websocket', 'polling'],
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,

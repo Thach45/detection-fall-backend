@@ -36,7 +36,7 @@ app.use((err, req, res, next) => {
 });
 
 // Only create server and socket.io in development
-if (process.env.NODE_ENV !== 'production') {
+if (true) {
   const http = require('http');
   const socketIo = require('socket.io');
   const server = http.createServer(app);
