@@ -15,7 +15,20 @@
             transports: ['websocket', 'polling'],
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
-            timeout: 20000
+            timeout: 20000,
+            forceNew: true,
+            path: '/socket.io'
+        });
+
+        // Log connection events for debugging
+        socket.io.on("error", (error) => {
+            console.error("Socket.IO error:", error);
+            document.getElementById('status').textContent = `Trạng thái: Lỗi - ${error.message}`;
+        });
+
+        socket.io.on("reconnect_attempt", (attempt) => {
+            console.log("Reconnection attempt:", attempt);
+            document.getElementById('status').textContent = `Trạng thái: Đang thử kết nối lại (${attempt})`;
         });
 
         // Xử lý kết nối
