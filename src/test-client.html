@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO Test Client</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h2>Socket.IO Test Client</h2>
+    <div id="status">Trạng thái: Chưa kết nối</div>
+    <div id="transport">Transport: -</div>
+    <div id="messages"></div>
+
+    <script>
+        const socket = io('http://localhost:3000', {
+            transports: ['websocket', 'polling'],
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            timeout: 20000
+        });
+
+        // Xử lý kết nối
+        socket.on('connect', () => {
+            document.getElementById('status').textContent = 'Trạng thái: Đã kết nối';
+            document.getElementById('transport').textContent = `Transport: ${socket.io.engine.transport.name}`;
+            console.log('✅ Socket.IO connected');
+        });
+
+        // Xử lý xác nhận kết nối từ server
+        socket.on('connection_confirmed', (data) => {
+            console.log('Server confirmed connection:', data);
+            document.getElementById('messages').innerHTML = `
+                <div style="border: 1px solid #green; margin: 10px; padding: 10px;">
+                    <h3>✅ Kết nối thành công</h3>
+                    <p>Socket ID: ${data.socketId}</p>
+                    <p>Transport: ${data.transport}</p>
+                </div>
+            ` + document.getElementById('messages').innerHTML;
+        });
+
+        // Xử lý ngắt kết nối
+        socket.on('disconnect', (reason) => {
+            document.getElementById('status').textContent = 'Trạng thái: Mất kết nối';
+            document.getElementById('transport').textContent = 'Transport: -';
+            console.log('❌ Socket.IO disconnected:', reason);
+        });
+
+        // Xử lý lỗi
+        socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+            document.getElementById('status').textContent = 'Trạng thái: Lỗi kết nối';
+        });
+
+        // Lắng nghe thông báo té ngã
+        socket.on('fall_detected', (data) => {
+            console.log('Received fall alert:', data);
+            document.getElementById('messages').innerHTML = `
+                <div style="border: 1px solid #red; margin: 10px; padding: 10px;">
+                    <h3>🚨 Cảnh báo té ngã!</h3>
+                    <p>Thiết bị: ${data.deviceId}</p>
+                    <p>Vị trí: ${JSON.stringify(data.location)}</p>
+                    <p>Thời gian: ${data.timestamp}</p>
+                    <p>Tin nhắn: ${data.message}</p>
+                </div>
+            ` + document.getElementById('messages').innerHTML;
+        });
+    </script>
+</body>
+</html>
