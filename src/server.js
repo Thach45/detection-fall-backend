@@ -83,6 +83,3 @@ server.listen(PORT, () => {
   console.log(`📱 Test client available at http://localhost:${PORT}/test`);
   console.log('👉 Waiting for Socket.IO connections...');
 });
-
-// Export both app and server for Vercel
-module.exports = process.env.NODE_ENV === 'production' ? server : app;
