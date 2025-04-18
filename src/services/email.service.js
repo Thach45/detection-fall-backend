@@ -13,11 +13,12 @@ class EmailService {
     });
   }
 
-  async sendFallDetectionAlert(location, timestamp) {
+  async sendFallDetectionAlert(location, to_email, timestamp) {
     try {
+      console.log('Sending fall detection alert to:', to_email);
       const mailOptions = {
         from: process.env.SMTP_USER,
-        to: process.env.TO_EMAIL,
+        to: to_email,
         subject: 'URGENT: Fall Detection Alert!',
         html: `
           <h2>Fall Detection Alert</h2>

@@ -1,3 +1,4 @@
+const User = require('../models/user.model');
 const emailService = require('../services/email.service');
 
 class FallDetectionController {
@@ -6,9 +7,10 @@ class FallDetectionController {
       const { deviceId, location } = req.body;
       const timestamp = new Date().toLocaleString();
       const locationStr = location ? `${location.latitude}, ${location.longitude}` : 'Unknown';
-
+      const respone = await User.findOne({ deviceId })
+      const to_email = respone.emailEmergency;
       // Gửi email
-      await emailService.sendFallDetectionAlert(locationStr, timestamp);
+      await emailService.sendFallDetectionAlert(locationStr, to_email, timestamp);
 
       // Lấy io instance và danh sách clients đã được lưu trong app
       const io = req.app.get('io');
@@ -29,12 +31,12 @@ class FallDetectionController {
       // Emit tới tất cả clients với event name 'fall_detected'
       io.emit('fall_detected', notificationData);
       notifiedClients = io.engine.clientsCount;
-
       res.status(200).json({
         success: true,
-        message: 'Fall detected and notifications sent',
+        message: 'Fall detection alert sent successfully',
         notifiedClients
       });
+      
     } catch (error) {
       console.error('Error in fall detection:', error);
       res.status(500).json({
