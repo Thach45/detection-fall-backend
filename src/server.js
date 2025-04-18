@@ -78,13 +78,11 @@ app.set('io', io);
 const PORT = process.env.PORT || 3000;
 
 // Export for development
-if (process.env.NODE_ENV !== 'production') {
-  server.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
-    console.log(`📱 Test client available at http://localhost:${PORT}/test`);
-    console.log('👉 Waiting for Socket.IO connections...');
-  });
-}
+server.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`📱 Test client available at http://localhost:${PORT}/test`);
+  console.log('👉 Waiting for Socket.IO connections...');
+});
 
 // Export both app and server for Vercel
 module.exports = process.env.NODE_ENV === 'production' ? server : app;
