@@ -8,9 +8,17 @@ class FallDetectionController {
       const timestamp = new Date().toLocaleString();
       const locationStr = location ? `${location.latitude}, ${location.longitude}` : 'Unknown';
       const respone = await User.findOne({ deviceId })
-      const to_email = respone.emailEmergency;
-      // Gửi email
+      console.log("🚀 ~ file: fallDetection.controller.js:15 ~ FallDetectionController ~ reportFall ~ respone:", respone)
+      if (!respone) {
+        return res.status(404).json({
+          success: false,
+          message: 'Device not found'
+        });
+      }
+      const to_email = respone?.emailEmergency || "";
       await emailService.sendFallDetectionAlert(locationStr, to_email, timestamp);
+      
+      // Gửi email
 
       // Lấy io instance và danh sách clients đã được lưu trong app
       const io = req.app.get('io');

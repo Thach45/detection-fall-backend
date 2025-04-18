@@ -59,7 +59,7 @@ const createUser = async (req, res) => {
             ...req.body,
             password: hashedPassword
         });
-
+        console.log(user);
         await user.save();
 
         // Remove password from response
@@ -135,19 +135,17 @@ const getUser = async (req, res) => {
         });
     }
 }
-        // Remove password from response
-        
 const changePassword = async (req, res) => {
     try {
-        const { phone, currentPassword, newPassword } = req.body;
+        const { phoneEmergency, currentPassword, newPassword } = req.body;
 
-        if (!phone || !currentPassword || !newPassword) {
+        if (!phoneEmergency || !currentPassword || !newPassword) {
             return res.status(400).json({
                 message: "Vui lòng điền đầy đủ thông tin"
             });
         }
 
-        const user = await User.findOne({ phone });
+        const user = await User.findOne({ phoneEmergency });
         if (!user) {
             return res.status(404).json({
                 message: "Không tìm thấy người dùng"
