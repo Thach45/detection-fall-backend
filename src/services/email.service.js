@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const FallEvent = require('../models/fallEvent.model');
 
 class EmailService {
   constructor() {
@@ -30,7 +31,10 @@ class EmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log('Email sent successfully:', info.messageId);
+      
+       
+
+      
       return { success: true, messageId: info.messageId };
     } catch (error) {
       console.error('Error sending email:', error);

@@ -1,3 +1,4 @@
+const FallEvent = require('../models/fallEvent.model');
 const User = require('../models/user.model');
 const emailService = require('../services/email.service');
 
@@ -8,7 +9,7 @@ class FallDetectionController {
       const timestamp = new Date().toLocaleString();
       const locationStr = location ? `${location.latitude}, ${location.longitude}` : 'Unknown';
       const respone = await User.findOne({ deviceId })
-      console.log("🚀 ~ file: fallDetection.controller.js:15 ~ FallDetectionController ~ reportFall ~ respone:", respone)
+     
       if (!respone) {
         return res.status(404).json({
           success: false,
@@ -16,7 +17,21 @@ class FallDetectionController {
         });
       }
       const to_email = respone?.emailEmergency || "";
-      await emailService.sendFallDetectionAlert(locationStr, to_email, timestamp);
+      const resp = await emailService.sendFallDetectionAlert(locationStr, to_email, timestamp);
+      if(resp)
+      {
+        const messFall ={
+          deviceId,
+          location:{
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          timestamp
+        }
+       
+        const newFallDetection = await FallEvent.create(messFall);
+        console.log('Fall detection event saved:', newFallDetection);
+      }
       
       // Gửi email
 
@@ -50,6 +65,24 @@ class FallDetectionController {
       res.status(500).json({
         success: false,
         message: 'Error processing fall detection',
+        error: error.message
+      });
+    }
+  }
+
+  async getFallEvents(req, res) {
+    try {
+      const { deviceId } = req.query;
+      const fallEvents = await FallEvent.find({deviceId}).sort({ timestamp: -1 });
+      res.status(200).json({
+        success: true,
+        data: fallEvents
+      });
+    } catch (error) {
+      console.error('Error fetching fall events:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching fall events',
         error: error.message
       });
     }

@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+
 const mongoose = require('mongoose');
 const User = require('./models/user.model');
 const fallDetectionRoutes = require('./routes/fallDetection.routes');

@@ -17,14 +17,17 @@ const fallEventSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  status: {
-    type: String,
-    enum: ['detected', 'notified', 'responded'],
-    default: 'detected'
+  day: {
+    type: Number,
+    default: () => new Date().getDate()
   },
-  notificationSent: {
-    type: Boolean,
-    default: false
+  month: {
+    type: Number,
+    default: () => new Date().getMonth() + 1 // tháng bắt đầu từ 0 nên +1
+  },
+  year: {
+    type: Number,
+    default: () => new Date().getFullYear()
   }
 });
 
