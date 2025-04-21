@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const User = require('./models/user.model');
 const fallDetectionRoutes = require('./routes/fallDetection.routes');
 const userRoutes = require('./routes/user.routes');
+const medicationReminderRoutes = require('./routes/medicationReminder.routes');
 const http = require('http');
 const socketIo = require('socket.io');
 
@@ -55,6 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api', fallDetectionRoutes);
 app.use('/api', userRoutes);
+app.use('/api', medicationReminderRoutes);
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
