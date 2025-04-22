@@ -17,8 +17,9 @@ exports.createReminder = async (req, res) => {
         // Send real-time notification to device
         const io = req.app.get('io');
         const deviceSockets = req.app.get('deviceSockets');
-        const socketId = deviceSockets.get(deviceId);
-
+        const socketId = deviceSockets.get(Number(deviceId));
+        
+        console.log('Socket ID:', deviceSockets, socketId, Number(deviceId));
         if (socketId) {
             io.to(socketId).emit('medication_reminder', {
                 type: 'MEDICATION_REMINDER',

@@ -33,11 +33,9 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
+    methods: ["GET", "POST"]
   },
-  transports: ['websocket', 'polling'],
+  transports: ['websocket'],
   allowEIO3: true,
   pingTimeout: 60000,
   pingInterval: 25000
