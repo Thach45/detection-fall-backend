@@ -14,20 +14,25 @@ exports.createReminder = async (req, res) => {
 
         await reminder.save();
 
-        // Send real-time notification to device
-        const io = req.app.get('io');
-        const deviceSockets = req.app.get('deviceSockets');
-        const socketId = deviceSockets.get(Number(deviceId));
-        
-        console.log('Socket ID:', deviceSockets, socketId, Number(deviceId));
-        if (socketId) {
-            io.to(socketId).emit('medication_reminder', {
-                type: 'MEDICATION_REMINDER',
-                medicineName: reminder.medicineName,
-                schedule: reminder.schedule,
-                timestamp: new Date().toISOString()
-            });
-        }
+        // Send MQTT message to device
+        const mqttClient = req.app.get('mqttClient');
+        const TOPICS = req.app.get('mqttTopics');
+
+        const reminderMessage = {
+            type: 'MEDICATION_REMINDER',
+            deviceId,
+            userId,
+            medicineName: reminder.medicineName,
+            schedule: reminder.schedule,
+            reminderId: reminder._id,
+            timestamp: new Date().toISOString()
+        };
+        console.log('Publishing reminder message:', reminderMessage);
+
+        // Publish to general reminder topic
+        mqttClient.publish(TOPICS.MEDICATION_REMINDER, JSON.stringify(reminderMessage));
+        // Publish to device-specific topic
+        mqttClient.publish(`device/${deviceId}/reminder`, JSON.stringify(reminderMessage));
 
         res.status(201).json({
             success: true,
@@ -78,19 +83,22 @@ exports.deleteReminder = async (req, res) => {
             });
         }
 
-        // Notify device about deletion
-        const io = req.app.get('io');
-        const deviceSockets = req.app.get('deviceSockets');
-        const socketId = deviceSockets.get(reminder.deviceId);
+        // Notify device about deletion via MQTT
+        const mqttClient = req.app.get('mqttClient');
+        const TOPICS = req.app.get('mqttTopics');
 
-        if (socketId) {
-            io.to(socketId).emit('medication_reminder_update', {
-                type: 'REMINDER_DELETED',
-                reminderId: reminder._id,
-                medicineName: reminder.medicineName,
-                timestamp: new Date().toISOString()
-            });
-        }
+        const deleteMessage = {
+            type: 'REMINDER_DELETED',
+            deviceId: reminder.deviceId,
+            userId: reminder.userId,
+            reminderId: reminder._id,
+            medicineName: reminder.medicineName,
+            timestamp: new Date().toISOString()
+        };
+
+        // Publish to general topic and device-specific topic
+        mqttClient.publish(TOPICS.MEDICATION_REMINDER, JSON.stringify(deleteMessage));
+        mqttClient.publish(`device/${reminder.deviceId}/reminder`, JSON.stringify(deleteMessage));
 
         res.json({
             success: true,
@@ -101,6 +109,54 @@ exports.deleteReminder = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Lỗi khi xóa nhắc nhở',
+            error: error.message
+        });
+    }
+};
+
+// Mark medication as taken
+exports.medicationTaken = async (req, res) => {
+    try {
+        const { reminderId } = req.params;
+        const { takenAt } = req.body;
+
+        const reminder = await MedicationReminder.findById(reminderId);
+        if (!reminder) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy nhắc nhở'
+            });
+        }
+
+        // Update reminder status
+        reminder.lastTaken = takenAt || new Date();
+        await reminder.save();
+
+        // Notify via MQTT
+        const mqttClient = req.app.get('mqttClient');
+        const TOPICS = req.app.get('mqttTopics');
+
+        const takenMessage = {
+            type: 'MEDICATION_TAKEN',
+            deviceId: reminder.deviceId,
+            userId: reminder.userId,
+            reminderId: reminder._id,
+            medicineName: reminder.medicineName,
+            takenAt: reminder.lastTaken,
+            timestamp: new Date().toISOString()
+        };
+
+        mqttClient.publish(TOPICS.MEDICATION_TAKEN, JSON.stringify(takenMessage));
+
+        res.json({
+            success: true,
+            data: reminder
+        });
+    } catch (error) {
+        console.error('Error marking medication as taken:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi cập nhật trạng thái thuốc',
             error: error.message
         });
     }

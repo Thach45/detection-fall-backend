@@ -11,4 +11,7 @@ router.get('/medication-reminders/user/:userId', medicationReminderController.ge
 // Delete a reminder
 router.delete('/medication-reminders/:id', medicationReminderController.deleteReminder);
 
+// Mark medication as taken
+router.post('/medication-reminders/:reminderId/taken', medicationReminderController.medicationTaken);
+
 module.exports = router;
