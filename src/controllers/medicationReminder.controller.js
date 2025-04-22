@@ -1,7 +1,8 @@
 const MedicationReminder = require('../models/medicationReminder.model');
 
 // Create a new reminder
-exports.createReminder = async (req, res) => {
+exports.createReminder = async (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
     try {
         const { userId, deviceId, medicineName, schedule } = req.body;
 
@@ -40,16 +41,14 @@ exports.createReminder = async (req, res) => {
         });
     } catch (error) {
         console.error('Error creating reminder:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi khi tạo nhắc nhở thuốc',
-            error: error.message
-        });
+        // Pass error to error handling middleware
+        next(error);
     }
 };
 
 // Get all reminders for a user
-exports.getUserReminders = async (req, res) => {
+exports.getUserReminders = async (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
     try {
         const { userId } = req.params;
 
@@ -62,16 +61,13 @@ exports.getUserReminders = async (req, res) => {
         });
     } catch (error) {
         console.error('Error getting reminders:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi khi lấy danh sách nhắc nhở',
-            error: error.message
-        });
+        next(error);
     }
 };
 
 // Delete a reminder
-exports.deleteReminder = async (req, res) => {
+exports.deleteReminder = async (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
     try {
         const { id } = req.params;
 
@@ -106,16 +102,13 @@ exports.deleteReminder = async (req, res) => {
         });
     } catch (error) {
         console.error('Error deleting reminder:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi khi xóa nhắc nhở',
-            error: error.message
-        });
+        next(error);
     }
 };
 
 // Mark medication as taken
-exports.medicationTaken = async (req, res) => {
+exports.medicationTaken = async (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
     try {
         const { reminderId } = req.params;
         const { takenAt } = req.body;
@@ -154,10 +147,6 @@ exports.medicationTaken = async (req, res) => {
         });
     } catch (error) {
         console.error('Error marking medication as taken:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi khi cập nhật trạng thái thuốc',
-            error: error.message
-        });
+        next(error);
     }
 };
