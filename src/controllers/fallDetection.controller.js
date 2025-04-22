@@ -38,6 +38,7 @@ class FallDetectionController {
       // Lấy io instance và danh sách clients đã được lưu trong app
       const io = req.app.get('io');
       const connectedClients = req.app.get('connectedClients');
+      console.log('Connected clients:', connectedClients);
 
       // Gửi thông báo đến tất cả mobile clients đã kết nối
       const notificationData = {
