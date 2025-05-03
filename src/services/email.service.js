@@ -16,7 +16,12 @@ class EmailService {
 
   async sendFallDetectionAlert(location, to_email, timestamp) {
     try {
-      console.log('Sending fall detection alert to:', to_email);
+      console.log('Sending fall detection alert to:', location);
+      const longitude = location.split(',')[0];
+      const latitude = location.split(',')[1];
+      // loại bỏ khoảng trắng
+      const map = location.replace(/\s/g, '');
+      
       const mailOptions = {
         from: process.env.SMTP_USER,
         to: to_email,
@@ -26,6 +31,7 @@ class EmailService {
           <p>A fall has been detected from an IoT device.</p>
           <p><strong>Location:</strong> ${location || 'Unknown'}</p>
           <p><strong>Time:</strong> ${timestamp || new Date().toLocaleString()}</p>
+          <p><strong>Map:</strong> https://www.google.com/maps?q=${map}</p>
           <p>Please check on the person immediately!</p>
         `,
       };
